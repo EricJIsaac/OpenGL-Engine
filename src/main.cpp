@@ -12,6 +12,49 @@
 
 #include "graphics/graphics.h"
 
+void render(
+  graphics::scene::Node* root,
+  graphics::ogl::MeshBuffer& mb,
+  glm::mat4 start,
+  GLuint matrixId)
+{
+  if(root == nullptr)
+  {
+    return;
+  }
+
+  auto meshes = root->getComponents(
+    graphics::scene::component::Type::Mesh);
+
+  glm::mat4 mvp = start * root->getTransform().getMatrix();
+  glUniformMatrix4fv(matrixId, 1, GL_FALSE, &mvp[0][0]);
+
+  for(std::size_t i = 0; i < meshes.size(); ++i)
+  {
+    mb.draw(((graphics::scene::MeshComponent*)meshes[i])->getId());
+  }
+
+  for(std::size_t i = 0; i < root->numChildren(); ++i)
+  {
+    render(root->getChild(i), mb, mvp, matrixId);
+  }
+}
+
+void destroy(graphics::scene::Node* root)
+{
+  for(std::size_t i = 0; i < root->numChildren(); ++i)
+  {
+    destroy(root->getChild(i));
+  }
+
+  for(std::size_t i = 0; i < root->numComponents(); ++i)
+  {
+    delete root->getComponent(i);
+  }
+
+  delete root;
+}
+
 int main() {
   glewExperimental = true;
   if(!glfwInit())
@@ -61,31 +104,12 @@ int main() {
   quad2->indices = std::vector<unsigned short>(
     {0,1,2,1,3,2});
 
-  GLuint VertexArrayId;
-  glGenVertexArrays(1, &VertexArrayId);
-  glBindVertexArray(VertexArrayId);
+  std::vector<graphics::data::Mesh*> meshes;
+  meshes.push_back(quad1);
+  meshes.push_back(quad2);
 
-  std::size_t s1 = quad1->vertices.size() * sizeof(float);
-  std::size_t s2 = quad2->vertices.size() * sizeof(float);
-
-  GLuint vertexbuffer;
-  glGenBuffers(1, &vertexbuffer);
-  glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-  glBufferData(GL_ARRAY_BUFFER, s1 + s2, 0, GL_STATIC_DRAW);
-
-  glBufferSubData(GL_ARRAY_BUFFER, 0, s1, &quad1->vertices[0]);
-  glBufferSubData(GL_ARRAY_BUFFER, s1, s2, &quad2->vertices[0]);
-
-  s1 = quad1->indices.size() * sizeof(unsigned short);
-  s2 = quad2->indices.size() * sizeof(unsigned short);
-
-  GLuint elementbuffer;
-  glGenBuffers(1, &elementbuffer);
-  glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-  glBufferData(GL_ELEMENT_ARRAY_BUFFER, s1 + s2, 0, GL_STATIC_DRAW);
-
-  glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, 0, s1, &quad1->indices[0]);
-  glBufferSubData(GL_ELEMENT_ARRAY_BUFFER, s1, s2, &quad2->indices[0]);
+  graphics::ogl::MeshBuffer mb;
+  mb.generate(meshes);
 
   std::vector<GLuint> shaderIds;
   shaderIds.push_back
@@ -103,27 +127,37 @@ int main() {
   cameraNode->getTransform().setTranslation(glm::vec3(4, 3, 3));
   camera->setTarget(glm::vec3(0,0,0));
 
+  auto rootNode = new graphics::scene::Node();
+
+  auto mn1 = new graphics::scene::Node();
+  auto mc1 = new graphics::scene::MeshComponent();
+
+  rootNode->addChild(mn1);
+  mn1->getTransform().setTranslation(glm::vec3(0, -1, 0));
+  mn1->addComponent(mc1);
+  mc1->setId(1);
+
+  auto mn2 = new graphics::scene::Node();
+  auto mc2 = new graphics::scene::MeshComponent();
+
+  rootNode->addChild(mn2);
+  mn2->getTransform().setTranslation(glm::vec3(0, 1, 0));
+  mn2->addComponent(mc2);
+  mc2->setId(0);
+
   do{
     glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
     glUseProgram(programId);
 
-    glm::mat4 mvp =
+    glm::mat4 mv =
       camera->getProjectionMatrix() *
       camera->getViewMatrix() *
       glm::mat4(1.0f);
 
-    glUniformMatrix4fv(matrixId, 1, GL_FALSE, &mvp[0][0]);
-
-    glEnableVertexAttribArray(0);
-    glBindBuffer(GL_ARRAY_BUFFER, vertexbuffer);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
-
-    glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, elementbuffer);
-    char* offset = (char*)0 + 6 * sizeof(unsigned short);
-    glDrawElementsBaseVertex(GL_TRIANGLES, 6, GL_UNSIGNED_SHORT, (void*)offset, 4);
-
-    glDisableVertexAttribArray(0);
+    mb.predraw();
+    render(rootNode, mb, mv, matrixId);
+    mb.postdraw();
 
     glfwSwapBuffers(window);
     glfwPollEvents();
@@ -131,9 +165,9 @@ int main() {
   while(glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
 	glfwWindowShouldClose(window) == 0);
 
-  glDeleteBuffers(1, &vertexbuffer);
-  glDeleteBuffers(1, &elementbuffer);
+  mb.destroy();
+  destroy(rootNode);
 
-  delete camera;
-  delete cameraNode;
+  delete quad1;
+  delete quad2;
 }

@@ -7,7 +7,7 @@
 
 namespace graphics {
 namespace scene {
-  
+
 struct Node;
 class Component;
 
@@ -15,7 +15,7 @@ namespace node {
   void update_child_transforms(Node* root);
   void update_parent_matrices(Node* root, glm::mat4 start);
 } // namespace node
-  
+
 struct Node
 {
 public:
@@ -23,14 +23,15 @@ public:
 
   void addChild(Node* child);
   void addComponent(Component* component);
-  
+
   const std::size_t numChildren() const;
   const std::size_t numComponents() const;
 
   Node* getChild(std::size_t index) const;
+  Component* getComponent(std::size_t index) const;
   std::vector<Component*> getComponents
   (component::Type type);
-  
+
 private:
   Transform m_transform;
   std::vector<Node*> m_children;

@@ -9,6 +9,7 @@
 #include "graphics/scene/mesh_component.h"
 
 #include "graphics/ogl/shader.h"
+#include "graphics/ogl/mesh_buffer.h"
 
 #include "graphics/data/mesh.h"
 
