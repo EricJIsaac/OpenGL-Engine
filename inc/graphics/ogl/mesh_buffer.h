@@ -6,7 +6,7 @@
 
 namespace graphics {
 namespace data {
-  class Mesh;
+  struct Mesh;
 } // namespace data
 
 namespace ogl {

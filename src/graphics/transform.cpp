@@ -1,5 +1,6 @@
 #include "graphics/scene/transform.h"
 #include <glm/gtc/matrix_transform.hpp>
+#include <math.h>
 
 namespace graphics {
 namespace scene {
@@ -10,7 +11,7 @@ namespace scene {
     this->m_rotation = glm::vec3(0,0,0);
     this->m_translation = glm::vec3(0,0,0);
   }
-  
+
   void Transform::translate(const glm::vec3& translation)
   {
     this->m_translation += translation;
@@ -19,9 +20,9 @@ namespace scene {
   void Transform::rotate(const glm::vec3& rotation)
   {
     this->m_rotation += rotation;
-    this->m_rotation.x = (int)this->m_rotation.x % 360;
-    this->m_rotation.y = (int)this->m_rotation.y % 360;
-    this->m_rotation.z = (int)this->m_rotation.z % 360;
+    this->m_rotation.x = fmod(this->m_rotation.x, 360);
+    this->m_rotation.y = fmod(this->m_rotation.y, 360);
+    this->m_rotation.z = fmod(this->m_rotation.z, 360);
   }
 
   void Transform::scale(const glm::vec3& scale)
@@ -51,7 +52,7 @@ namespace scene {
   {
     this->m_parentMatrix = parent;
   }
-  
+
   const glm::vec3 Transform::getTranslation() const
   {
     return this->m_translation;
@@ -66,15 +67,15 @@ namespace scene {
   {
     return this->m_scale;
   }
-  
+
   const glm::mat4 Transform::getMatrix() const
   {
     glm::mat4 out  = glm::mat4(1.0f);
     out = glm::scale(out, this->m_scale);
-    out = glm::rotate( out, this->m_rotation.x, glm::vec3(1,0,0));
-    out = glm::rotate( out, this->m_rotation.x, glm::vec3(1,0,0));
-    out = glm::rotate( out, this->m_rotation.x, glm::vec3(1,0,0));
     out = glm::translate(out, this->m_translation);
+    out = glm::rotate( out, this->m_rotation.x, glm::vec3(1,0,0));
+    out = glm::rotate( out, this->m_rotation.y, glm::vec3(0,1,0));
+    out = glm::rotate( out, this->m_rotation.z, glm::vec3(0,0,1));
 
     return out;
   }
@@ -88,6 +89,6 @@ namespace scene {
   {
     return this->m_parentMatrix * this->getMatrix();
   }
-  
+
 } // namespace scene
 } // namespace graphics

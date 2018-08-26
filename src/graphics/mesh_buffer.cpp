@@ -27,19 +27,26 @@ void MeshBuffer::generate(
       i, e.index_offset, e.index_count, e.vertex_offset);
   }
 
+  int attribCount = graphics::data::mesh::attribute_count;
+  std::size_t buffer_byte_size = attribCount * vsize * sizeof(float);
+
   glGenVertexArrays(1, &this->m_vao);
   glBindVertexArray(this->m_vao);
 
   glGenBuffers(1, &this->m_vbo);
   glBindBuffer(GL_ARRAY_BUFFER, this->m_vbo);
-  glBufferData(GL_ARRAY_BUFFER, vsize * sizeof(float), 0, GL_STATIC_DRAW);
+  glBufferData(GL_ARRAY_BUFFER, buffer_byte_size, 0, GL_STATIC_DRAW);
 
   for(std::size_t i =0 ; i < meshes.size(); ++i)
   {
-    glBufferSubData(GL_ARRAY_BUFFER,
-      this->m_entries[i].vertex_offset * sizeof(float),
-      meshes[i]->vertices.size() * sizeof(float),
-      &meshes[i]->vertices[0]);
+    std::vector<float> ilb;
+    graphics::data::mesh::interleave_buffer(meshes[i], ilb);
+
+    std::size_t byte_offset =
+      this->m_entries[i].vertex_offset * sizeof(float) * attribCount;
+    std::size_t byte_size = ilb.size() * sizeof(float);
+
+    glBufferSubData(GL_ARRAY_BUFFER, byte_offset, byte_size, &ilb[0]);
   }
 
   glGenBuffers(1, &this->m_ele);
@@ -59,8 +66,14 @@ void MeshBuffer::generate(
 void MeshBuffer::predraw()
 {
   glEnableVertexAttribArray(0);
+  glEnableVertexAttribArray(1);
   glBindBuffer(GL_ARRAY_BUFFER, this->m_vbo);
-  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, (void*)0);
+
+  std::size_t stride = 6 * sizeof(float);
+  glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, stride, (void*)0);
+
+  char* offset = (char*)0 + 3 * sizeof(float);
+  glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, stride, (void*)offset);
 
   glBindBuffer(GL_ELEMENT_ARRAY_BUFFER, this->m_ele);
 }

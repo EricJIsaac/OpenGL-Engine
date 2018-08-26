@@ -14,22 +14,20 @@ class CameraComponent : public Component
 public:
   CameraComponent();
 
-  glm::mat4 getViewMatrix();  
+  glm::mat4 getViewMatrix();
   glm::mat4 getProjectionMatrix();
 
-  void setTarget(glm::vec3 target);
- 
 private:
-  glm::vec3  m_target;
-  
+  graphics::scene::Node* m_target = nullptr;
+
   float m_fov = 45.f;
   float m_aspect = 4.f / 3.f;
   float m_near = 0.1f;
   float m_far = 100.f;
 };
-  
+
 } // namespace scene
 } // namespace graphics
-  
+
 
 #endif // GRAPHICS_CAMERA_COMPONENT_H

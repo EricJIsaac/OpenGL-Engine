@@ -6,8 +6,10 @@ namespace scene {
 namespace component {
 enum Type
 {
- Camera,
- Mesh
+ Camera = 0,
+ Mesh,
+ SkeletonMesh,
+ Script
 };
 } // namespace component
 

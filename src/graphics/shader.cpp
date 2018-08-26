@@ -86,7 +86,32 @@ namespace shader {
 
     return programId;
   }
-  
+
+} // namespace shader
+
+Shader::Shader(GLuint shader_program)
+{
+  this->m_program = shader_program;
+
+  this->m_uniforms["mvp"] = glGetUniformLocation(this->m_program, "uniform_mvp");
+  this->m_uniforms["bpos"] = glGetUniformLocation(this->m_program, "uniform_bpos");
 }
+
+const GLuint Shader::get() const
+{
+  return this->m_program;
 }
+
+const GLuint Shader::uniform(std::string uniform_name) const
+{
+  if(this->m_uniforms.count(uniform_name) == 0)
+  {
+    printf("Unrecognized shader '%s' uniform requested.\n", uniform_name.c_str());
+    return -1;
+  }
+
+  return this->m_uniforms.at(uniform_name);
 }
+
+} // namespace ogl
+} // namespace graphics
