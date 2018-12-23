@@ -2,19 +2,15 @@ set(PROJECT_NAME "opengl-engine")
 
 project(${PROJECT_NAME})
 
-find_library(GL REQUIRED)
-find_library(GLEW REQUIRED)
-find_library(glfw REQUIRED)
-find_library(assimp REQUIRED)
-
 add_executable(${PROJECT_NAME} main.cpp)
-add_subdirectory(engine)
-add_subdirectory(graphics)
 
-target_link_libraries(${PROJECT_NAME} GL)
-target_link_libraries(${PROJECT_NAME} GLEW)
-target_link_libraries(${PROJECT_NAME} glfw)
-target_link_libraries(${PROJECT_NAME} assimp)
+add_subdirectory(graphics)
+add_subdirectory(engine)
+
+add_dependencies(${PROJECT_NAME} GL)
+add_dependencies(${PROJECT_NAME} glew)
+add_dependencies(${PROJECT_NAME} glfw)
+add_dependencies(${PROJECT_NAME} assimp)
 
 target_link_libraries(${PROJECT_NAME} graphics)
 target_link_libraries(${PROJECT_NAME} engine)

@@ -5,3 +5,6 @@ Dependencies:
 - glew
 - glm
 - assimp
+
+Builds using CMake. On windows, copy glew32.dll, glfw3.dll, and libassimp.dll
+to the executable locations. Use MinGW, Visual Studio (probably) doesn't work.

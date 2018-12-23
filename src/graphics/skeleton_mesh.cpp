@@ -9,6 +9,10 @@
 #define GLM_ENABLE_EXPERIMENTAL
 #include <glm/gtx/string_cast.hpp>
 
+#ifndef M_PI
+    #define M_PI 3.14159265358979323846
+#endif
+
 namespace graphics {
 namespace data {
 namespace mesh {
@@ -97,13 +101,13 @@ bool load(const std::string& file_path, SkeletonMesh*& outptr)
       searchNodeDepth++;
       parent = parent->mParent;
     }
-    
+
     if(skeletonNode == nullptr || searchNodeDepth < skeletonNodeDepth)
     {
       skeletonNode = searchNode;
       skeletonNodeDepth = searchNodeDepth;
       continue;
-    }    
+    }
   }
 
   if(skeletonNode == nullptr)
@@ -150,7 +154,7 @@ bool load(aiNode*& node, Skeleton*& skeleton,
   std::unordered_map<std::string, aiBone*>& boneMap)
 {
   skeleton = new Skeleton();
-  
+
   aiMatrix4x4 m = node->mTransformation;
   skeleton->inv_global_transform = glm::mat4(
      m[0][0], m[0][1], m[0][2], m[0][3],
@@ -159,7 +163,7 @@ bool load(aiNode*& node, Skeleton*& skeleton,
      m[3][0], m[3][1], m[3][2], m[3][3]);
   skeleton->inv_global_transform = glm::transpose(skeleton->inv_global_transform);
   skeleton->inv_global_transform = glm::inverse(skeleton->inv_global_transform);
-  
+
   if(!load(node, skeleton->root, boneMap))
   {
     return false;
@@ -229,7 +233,7 @@ bool load(aiAnimation* aianim, Animation& anim, std::size_t id)
 bool load(aiNodeAnim* aianode, AnimNode& anode)
 {
   anode.bone_name = aianode->mNodeName.C_Str();
-  
+
   for(std::size_t i = 0; i < aianode->mNumPositionKeys; ++i)
   {
     aiVectorKey aik = aianode->mPositionKeys[i];

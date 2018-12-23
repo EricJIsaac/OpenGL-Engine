@@ -12,4 +12,12 @@ set(SOURCES
   "transform.cpp"
 )
 
-add_library(graphics SHARED ${SOURCES})
+add_library(graphics STATIC ${SOURCES})
+
+add_dependencies(graphics glew)
+add_dependencies(graphics glfw)
+add_dependencies(graphics assimp)
+
+target_link_libraries(graphics "glew")
+target_link_libraries(graphics "glfw")
+target_link_libraries(graphics "assimp")
