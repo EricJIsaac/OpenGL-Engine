@@ -10,6 +10,7 @@
 #include <sstream>
 #include <string>
 #include <fstream>
+#include <csignal>
 
 namespace graphics {
 namespace ogl {
@@ -50,6 +51,8 @@ namespace shader {
       std::vector<char> shaderErrorMsg(infoLogLength+1);
       glGetShaderInfoLog(shaderId, infoLogLength, NULL, &shaderErrorMsg[0]);
       printf("%s\n", &shaderErrorMsg[0]);
+
+      raise(SIGABRT);
     }
 
     return shaderId;

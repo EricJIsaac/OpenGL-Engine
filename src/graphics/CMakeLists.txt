@@ -12,4 +12,4 @@ set(SOURCES
   "transform.cpp"
 )
 
-add_library(graphics SHARED ${SOURCES})
+add_library(graphics STATIC ${SOURCES})

@@ -3,4 +3,4 @@ set(SOURCES
   "input_map.cpp"
 )
 
-add_library(engine SHARED ${SOURCES})
+add_library(engine STATIC ${SOURCES})

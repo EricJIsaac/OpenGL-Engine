@@ -33,6 +33,11 @@ MessageCallback( GLenum source,
             type, severity, message );
 }
 
+void glfw_error_callback(int error_code, const char* description)
+{
+  printf("GLFW Error: %s\n", description);
+}
+
 void startup(graphics::scene::Node* root)
 {
   auto scripts = root->getComponents(
@@ -187,6 +192,8 @@ void destroy(graphics::scene::Node* root)
 }
 
 int main() {
+  glfwSetErrorCallback(glfw_error_callback);
+  
   glewExperimental = true;
   if(!glfwInit())
   {
@@ -202,7 +209,7 @@ int main() {
   window = glfwCreateWindow(1024,768, "opengl", NULL, NULL);
   if(window == nullptr)
   {
-    fprintf(stderr, "Failed to open GLFW window.");
+    fprintf(stderr, "Failed to open GLFW window.\n");
     glfwTerminate();
     return -1;
   }
