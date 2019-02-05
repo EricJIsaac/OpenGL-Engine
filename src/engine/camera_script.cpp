@@ -45,34 +45,37 @@ void CameraScript::update(float dt)
   auto owner = this->m_owner;
   auto abs_transform = this->m_owner->getTransform().getAbsoluteMatrix();
 
-  float va = this->m_input->getAxisValue(AXIS_VERTICAL);
+  float rotation_speed = 20.0f;
+  float move_speed = 10.0f;
+  
+  float va = this->m_input->getAxisValue(AXIS_VERTICAL) * dt;
   if(std::abs(va) > 0.01)
   {
     glm::vec4 vertical(1,0,0,0);
     vertical = abs_transform * vertical;
-    owner->getTransform().translate( va * glm::vec3(vertical));
+    owner->getTransform().translate( move_speed * va * glm::vec3(vertical));
   }
 
-  float ha = this->m_input->getAxisValue(AXIS_HORIZONTAL);
+  float ha = this->m_input->getAxisValue(AXIS_HORIZONTAL) * dt;
   if(std::abs(ha) > 0.01)
   {
     glm::vec4 horizontal(0,0,1,0);
     horizontal = abs_transform * horizontal;
-    owner->getTransform().translate( ha * glm::vec3(horizontal));
+    owner->getTransform().translate( move_speed * ha * glm::vec3(horizontal));
   }
 
-  float sa = this->m_input->getAxisValue(AXIS_SKYWARD);
+  float sa = this->m_input->getAxisValue(AXIS_SKYWARD) * dt;
   if(std::abs(sa) > 0.01)
   {
     glm::vec4 skyward(0,1,0,0);
     skyward = abs_transform * skyward;
-    owner->getTransform().translate( sa * glm::vec3(skyward));
+    owner->getTransform().translate( move_speed * sa * glm::vec3(skyward));
   }
 
-  float ra = this->m_input->getAxisValue(AXIS_ROTATIONAL);
+  float ra = this->m_input->getAxisValue(AXIS_ROTATIONAL) * dt;
   if(std::abs(ra) > 0.01)
   {
-    owner->getTransform().rotate(ra * glm::vec3(0, 3.14 / 180 * 1, 0));
+    owner->getTransform().rotate(ra * glm::vec3(0, 3.14 / 180 * rotation_speed, 0));
   }
 }
 

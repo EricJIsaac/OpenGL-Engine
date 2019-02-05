@@ -34,7 +34,7 @@ void InputMap::key_callback(
       if(action == GLFW_RELEASE)
       {
         KeyAxisInfo ka = iter->second;
-        this->m_keyValues[ka.axis] -= ka.value;
+        this->m_keyValues[ka.axis] = 0.0f;
       }
     }
   }

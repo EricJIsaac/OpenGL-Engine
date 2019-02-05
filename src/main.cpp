@@ -9,6 +9,7 @@
 #include <sstream>
 #include <string>
 #include <fstream>
+#include <chrono>
 
 #include "engine/engine.h"
 #include "graphics/graphics.h"
@@ -335,31 +336,44 @@ int main() {
 
   startup(rootNode);
 
+  typedef std::chrono::high_resolution_clock Time;
+  typedef std::chrono::milliseconds ms;
+  typedef std::chrono::duration<float> fsec;
+  auto last_tick_time = Time::now();
+    
   do{
-    float dt = 0.016f;
-    update(rootNode, dt);
-    update_anim_time(rootNode, dt);
+    fsec ft = Time::now() - last_tick_time;
+    ms mst = std::chrono::duration_cast<ms>(ft);
+    float dt = ((float) mst.count()) / 1000.f;
 
-    glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
-    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+    if(dt >= 0.016f)
+    {
+      last_tick_time = Time::now();
+      
+      update(rootNode, dt);
+      update_anim_time(rootNode, dt);
 
-    glm::mat4 mv =
-      camera->getProjectionMatrix() *
-      camera->getViewMatrix() *
-      glm::mat4(1.0f);
+      glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
+      glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    glUseProgram(mesh_shader.get());
-    mb.predraw();
-    render(rootNode, mb, mv, mesh_shader);
-    mb.postdraw();
+      glm::mat4 mv =
+	camera->getProjectionMatrix() *
+	camera->getViewMatrix() *
+	glm::mat4(1.0f);
 
-    glUseProgram(smesh_shader.get());
-    smb.predraw();
-    render(rootNode, smb, mv, smesh_shader);
-    smb.postdraw();
+      glUseProgram(mesh_shader.get());
+      mb.predraw();
+      render(rootNode, mb, mv, mesh_shader);
+      mb.postdraw();
 
-    glfwSwapBuffers(window);
-    glfwPollEvents();
+      glUseProgram(smesh_shader.get());
+      smb.predraw();
+      render(rootNode, smb, mv, smesh_shader);
+      smb.postdraw();
+
+      glfwSwapBuffers(window);
+      glfwPollEvents();
+    }
   }
   while(glfwGetKey(window, GLFW_KEY_ESCAPE) != GLFW_PRESS &&
 	glfwWindowShouldClose(window) == 0);
