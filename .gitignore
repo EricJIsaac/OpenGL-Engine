@@ -2,6 +2,9 @@
 bin/
 obj/
 
+# VS CODE IGNORES #
+.vscode
+
 # EMACS IGNORES #
 # -*- mode: gitignore; -*-
 *~

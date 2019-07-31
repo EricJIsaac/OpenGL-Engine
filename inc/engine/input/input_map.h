@@ -3,7 +3,7 @@
 
 #include <unordered_map>
 
-class GLFWwindow;
+struct GLFWwindow;
 namespace engine {
 namespace input {
 

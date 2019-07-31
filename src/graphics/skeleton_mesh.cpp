@@ -23,7 +23,7 @@ void toEulerAngle(aiQuaternion& q, double& roll, double& pitch, double& yaw)
 	// pitch (y-axis rotation)
 	double sinp = +2.0 * (q.w * q.y - q.z * q.x);
 	if (fabs(sinp) >= 1)
-		pitch = copysign(M_PI / 2, sinp); // use 90 degrees if out of range
+		pitch = copysign(3.14f / 2, sinp); // use 90 degrees if out of range
 	else
 		pitch = asin(sinp);
 

@@ -13,7 +13,7 @@ enum Type
 };
 } // namespace component
 
-class Node;
+struct Node;
  
 class Component
 {
