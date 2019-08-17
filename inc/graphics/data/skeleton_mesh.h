@@ -51,8 +51,14 @@ public:
 struct SkeletonMesh
 {
 public:
-  Skeleton* skeleton;
-  Mesh* mesh;
+  ~SkeletonMesh()
+  {
+    if(skeleton != nullptr) { delete skeleton; }
+    if(mesh != nullptr) { delete mesh; }
+  }
+
+  Skeleton* skeleton = nullptr;
+  Mesh* mesh = nullptr;
 };
 
 } // namespace data

@@ -36,7 +36,10 @@ bool load(const std::string& file_path, Mesh*& outptr)
   }
 
   aiMesh *aimesh = scene->mMeshes[0];
-  return load(aimesh, outptr);
+  bool result = load(aimesh, outptr);
+
+  importer.FreeScene();
+  return result;
 }
 
 bool load(aiMesh*& aimesh, Mesh*& mesh)

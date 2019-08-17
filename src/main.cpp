@@ -171,7 +171,7 @@ void render(
 			smc->getAnimTime(),
 			bpos);
 
-    glUniformMatrix4fv(shader.uniform("bpos"), 50, GL_FALSE, (const GLfloat*)(&bpos[0]));
+    glUniformMatrix4fv(shader.uniform("bpos"), bpos.size(), GL_FALSE, (const GLfloat*)(&bpos[0]));
     mb.draw(smc->getId());
   }
 
@@ -352,9 +352,9 @@ int main() {
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
       glm::mat4 mv =
-	camera->getProjectionMatrix() *
-	camera->getViewMatrix() *
-	glm::mat4(1.0f);
+      	camera->getProjectionMatrix() *
+      	camera->getViewMatrix() *
+      	glm::mat4(1.0f);
 
       glUseProgram(mesh_shader.get());
       mb.predraw();
