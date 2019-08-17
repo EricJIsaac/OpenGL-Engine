@@ -100,6 +100,11 @@ Shader::Shader(GLuint shader_program)
   this->m_uniforms["bpos"] = glGetUniformLocation(this->m_program, "uniform_bpos");
 }
 
+Shader::~Shader()
+{
+  glDeleteProgram(this->m_program);
+}
+
 const GLuint Shader::get() const
 {
   return this->m_program;

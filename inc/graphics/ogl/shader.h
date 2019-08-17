@@ -18,6 +18,7 @@ namespace shader {
 struct Shader {
 public:
   Shader(GLuint shader_program);
+  ~Shader();
   const GLuint get() const;
   const GLuint uniform(std::string uniform_name) const;
 

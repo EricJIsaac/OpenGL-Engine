@@ -10,9 +10,13 @@
 #include <string>
 #include <fstream>
 #include <chrono>
+#include <memory>
 
 #include "engine/engine.h"
 #include "graphics/graphics.h"
+
+using namespace graphics::scene;
+using namespace engine::scripts;
 
 engine::input::InputMap inputMap;
 auto input_callback(GLFWwindow* w, int k, int s, int a, int m)
@@ -177,24 +181,9 @@ void render(
   }
 }
 
-void destroy(graphics::scene::Node* root)
-{
-  for(std::size_t i = 0; i < root->numChildren(); ++i)
-  {
-    destroy(root->getChild(i));
-  }
-
-  for(std::size_t i = 0; i < root->numComponents(); ++i)
-  {
-    delete root->getComponent(i);
-  }
-
-  delete root;
-}
-
 int main() {
   glfwSetErrorCallback(glfw_error_callback);
-  
+
   glewExperimental = true;
   if(!glfwInit())
   {
@@ -278,55 +267,61 @@ int main() {
 
   shader_ids.clear();
   shader_ids.push_back
-    (graphics::ogl::shader::compile("data/shaders/skeleton_mesh.vs", GL_VERTEX_SHADER));
+    (graphics::ogl::shader::compile(
+      "data/shaders/skeleton_mesh.vs",
+      GL_VERTEX_SHADER));
   shader_ids.push_back
-    (graphics::ogl::shader::compile("data/shaders/skeleton_mesh.fs", GL_FRAGMENT_SHADER));
+    (graphics::ogl::shader::compile(
+      "data/shaders/skeleton_mesh.fs",
+      GL_FRAGMENT_SHADER));
 
   GLuint smesh_program_id = graphics::ogl::shader::link(shader_ids);
   auto smesh_shader = graphics::ogl::Shader(smesh_program_id);
 
   glfwSetKeyCallback(window, input_callback);
 
-  auto rootNode = new graphics::scene::Node();
+  auto rootNode = std::unique_ptr<Node>(new Node());
 
-  auto cameraNode = new graphics::scene::Node();
-  auto camera = new graphics::scene::CameraComponent();
-  auto cameraScript = new engine::scripts::CameraScript();
+  auto cameraNode = std::unique_ptr<Node>(new Node());
+  auto camera = std::unique_ptr<CameraComponent>(new CameraComponent());
+  auto cameraScript = std::unique_ptr<CameraScript>(new CameraScript());
   cameraScript->setInputMap(&inputMap);
 
-  rootNode->addChild(cameraNode);
-  cameraNode->addComponent(camera);
-  cameraNode->addComponent(cameraScript);
+  rootNode->addChild(cameraNode.get());
+  cameraNode->addComponent(camera.get());
+  cameraNode->addComponent(cameraScript.get());
   cameraNode->getTransform().setTranslation(glm::vec3(-10, 0, 0));
 
-  auto mn1 = new graphics::scene::Node();
-  auto mc1 = new graphics::scene::SkeletonMeshComponent();
+  auto mn1 = std::unique_ptr<Node>(new Node());
+  auto mc1 = std::unique_ptr<SkeletonMeshComponent>(
+    new SkeletonMeshComponent());
 
-  rootNode->addChild(mn1);
+  rootNode->addChild(mn1.get());
   mn1->getTransform().setTranslation(glm::vec3(-1, 0, 0));
   mn1->getTransform().setScale(glm::vec3(1,1,1));
   mn1->getTransform().setRotation(glm::vec3(0, 0, 0));
-  mn1->addComponent(mc1);
+  mn1->addComponent(mc1.get());
   mc1->setId(0);
   mc1->setAnimName("default_0");
   mc1->setAnimTime(0.1f);
 
-  auto mn2 = new graphics::scene::Node();
-  auto mc2 = new graphics::scene::MeshComponent();
+  auto mn2 = std::unique_ptr<Node>(new Node());
+  auto mc2 = std::unique_ptr<MeshComponent>(new MeshComponent());
 
-  rootNode->addChild(mn2);
+  rootNode->addChild(mn2.get());
   mn2->getTransform().setTranslation(glm::vec3(-15, -1, -15));
   mn2->getTransform().setScale(glm::vec3(0.3,0.3,0.3));
   mn2->getTransform().setRotation(glm::vec3(0, 0, 0));
-  mn2->addComponent(mc2);
+  mn2->addComponent(mc2.get());
   mc2->setId(0);
 
-  auto mn3 = new graphics::scene::Node();
-  auto mc3 = new graphics::scene::SkeletonMeshComponent();
+  auto mn3 = std::unique_ptr<Node>(new Node());
+  auto mc3 = std::unique_ptr<SkeletonMeshComponent>(
+    new SkeletonMeshComponent());
 
-  rootNode->addChild(mn3);
+  rootNode->addChild(mn3.get());
   mn3->getTransform().setTranslation(glm::vec3(-1, -5, -5));
-  mn3->addComponent(mc3);
+  mn3->addComponent(mc3.get());
   mc3->setAnimName("default_0");
   mc3->setId(1);
 
@@ -334,13 +329,13 @@ int main() {
   glDebugMessageCallback(MessageCallback, 0);
   glEnable(GL_DEPTH_TEST);
 
-  startup(rootNode);
+  startup(rootNode.get());
 
   typedef std::chrono::high_resolution_clock Time;
   typedef std::chrono::milliseconds ms;
   typedef std::chrono::duration<float> fsec;
   auto last_tick_time = Time::now();
-    
+
   do{
     fsec ft = Time::now() - last_tick_time;
     ms mst = std::chrono::duration_cast<ms>(ft);
@@ -349,9 +344,9 @@ int main() {
     if(dt >= 0.016f)
     {
       last_tick_time = Time::now();
-      
-      update(rootNode, dt);
-      update_anim_time(rootNode, dt);
+
+      update(rootNode.get(), dt);
+      update_anim_time(rootNode.get(), dt);
 
       glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -363,12 +358,12 @@ int main() {
 
       glUseProgram(mesh_shader.get());
       mb.predraw();
-      render(rootNode, mb, mv, mesh_shader);
+      render(rootNode.get(), mb, mv, mesh_shader);
       mb.postdraw();
 
       glUseProgram(smesh_shader.get());
       smb.predraw();
-      render(rootNode, smb, mv, smesh_shader);
+      render(rootNode.get(), smb, mv, smesh_shader);
       smb.postdraw();
 
       glfwSwapBuffers(window);
@@ -381,6 +376,18 @@ int main() {
   mb.destroy();
   smb.destroy();
 
-  shutdown(rootNode);
-  destroy(rootNode);
+  shutdown(rootNode.get());
+
+  for(auto& mesh : meshes)
+  {
+    delete mesh;
+  }
+
+  for(auto& smesh : smeshes)
+  {
+    delete smesh;
+  }
+
+  glfwDestroyWindow(window);
+  glfwTerminate();
 }
