@@ -1,0 +1,54 @@
+{
+  "name" : "rootNode",
+  "components" : {
+
+  },
+  "children" : [
+    {
+      "name" : "animMeshNode1",
+      "components" : [
+        {
+          "type" : "SkeletonMesh",
+          "id" : 0,
+          "animName" : "default_0",
+          "animTime" : 0.1
+        }
+      ],
+      "transform" : {
+        "location" : [-1, 0, 0],
+        "scale" : [1, 1, 1],
+        "rotation" : [90, 90, 45]
+      }
+    },
+    {
+      "name" : "animMeshNode2",
+      "components" : [
+        {
+          "type" : "SkeletonMesh",
+          "id" : 1,
+          "animName" : "default_0",
+          "animTime" : 0.1
+        }
+      ],
+      "transform" : {
+        "location" : [-1, -5, -5],
+        "scale" : [1, 1, 1],
+        "rotation" : [90, 90, 45]
+      }
+    },
+    {
+      "name" : "meshNode1",
+      "components" : [
+        {
+          "type" : "Mesh",
+          "id" : 0
+        }
+      ],
+      "transform" : {
+        "location" : [-15,-1,-15],
+        "scale" : [0.3, 0.3, 0.3],
+        "rotation" : [0,0,0]
+      }
+    }
+  ]
+}

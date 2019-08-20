@@ -1,14 +1,18 @@
 set(SOURCES
+  "jsoncpp.cpp"
   "anim_node.cpp"
   "animation.cpp"
   "camera_component.cpp"
   "mesh_buffer.cpp"
   "mesh.cpp"
   "node.cpp"
+  "render.cpp"
+  "scene.cpp"
   "shader.cpp"
   "skeleton_mesh_buffer.cpp"
   "skeleton_mesh.cpp"
   "skeleton.cpp"
+  "scene.cpp"
   "transform.cpp"
 )
 

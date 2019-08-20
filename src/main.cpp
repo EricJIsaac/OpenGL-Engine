@@ -43,144 +43,6 @@ void glfw_error_callback(int error_code, const char* description)
   printf("GLFW Error: %s\n", description);
 }
 
-void startup(graphics::scene::Node* root)
-{
-  auto scripts = root->getComponents(
-    graphics::scene::component::Type::Script);
-
-  for(std::size_t i = 0; i < scripts.size(); ++i)
-  {
-    auto script = (graphics::scene::ScriptComponent*)scripts[i];
-    script->startup();
-  }
-
-  for(std::size_t i = 0; i < root->numChildren(); ++i)
-  {
-    startup(root->getChild(i));
-  }
-}
-
-void update(graphics::scene::Node* root, float dt)
-{
-  auto scripts = root->getComponents(
-    graphics::scene::component::Type::Script);
-
-  for(std::size_t i = 0; i < scripts.size(); ++i)
-  {
-    auto script = (graphics::scene::ScriptComponent*)scripts[i];
-    script->update(dt);
-  }
-
-  for(std::size_t i = 0; i < root->numChildren(); ++i)
-  {
-    update(root->getChild(i), dt);
-  }
-}
-
-void shutdown(graphics::scene::Node* root)
-{
-  auto scripts = root->getComponents(
-    graphics::scene::component::Type::Script);
-
-  for(std::size_t i = 0; i < scripts.size(); ++i)
-  {
-    auto script = (graphics::scene::ScriptComponent*)scripts[i];
-    script->shutdown();
-  }
-
-  for(std::size_t i = 0; i < root->numChildren(); ++i)
-  {
-    shutdown(root->getChild(i));
-  }
-}
-
-void update_anim_time(graphics::scene::Node* root, float dt)
-{
-  auto meshes = root->getComponents(
-    graphics::scene::component::Type::SkeletonMesh);
-
-  for(std::size_t i = 0; i < meshes.size(); ++i)
-  {
-    auto mesh = (graphics::scene::SkeletonMeshComponent*)meshes[i];
-    mesh->updateAnimTime(dt);
-  }
-
-  for(std::size_t i = 0; i < root->numChildren(); ++i)
-  {
-    update_anim_time(root->getChild(i), dt);
-  }
-}
-
-void render(
-  graphics::scene::Node* root,
-  graphics::ogl::MeshBuffer& mb,
-  glm::mat4 start,
-  const graphics::ogl::Shader& shader)
-{
-  if(root == nullptr)
-  {
-    return;
-  }
-
-  auto meshes = root->getComponents(
-    graphics::scene::component::Type::Mesh);
-
-  glm::mat4 mvp = start * root->getTransform().getMatrix();
-  glUniformMatrix4fv(shader.uniform("mvp"), 1, GL_FALSE, &mvp[0][0]);
-
-  for(std::size_t i = 0; i < meshes.size(); ++i)
-  {
-    auto mc = (graphics::scene::MeshComponent*)meshes[i];
-    mb.draw(mc->getId());
-  }
-
-  for(std::size_t i = 0; i < root->numChildren(); ++i)
-  {
-    render(root->getChild(i), mb, mvp, shader);
-  }
-}
-
-void render(
-  graphics::scene::Node* root,
-  graphics::ogl::SkeletonMeshBuffer& mb,
-  glm::mat4 start,
-  const graphics::ogl::Shader& shader)
-{
-  if(root == nullptr)
-  {
-    return;
-  }
-
-  auto meshes = root->getComponents(
-    graphics::scene::component::Type::SkeletonMesh);
-
-  glm::mat4 mvp = start * root->getTransform().getMatrix();
-  glUniformMatrix4fv(shader.uniform("mvp"), 1, GL_FALSE, &mvp[0][0]);
-
-  for(std::size_t i = 0; i < meshes.size(); ++i)
-  {
-    auto smc = (graphics::scene::SkeletonMeshComponent*)meshes[i];
-    if(!smc->isAnimating())
-    {
-      continue;
-    }
-
-    std::vector<glm::mat4x4> bpos;
-    mb.getBonePositions(smc->getId(),
-			smc->getAnimName(),
-			smc->getAnimTime(),
-			bpos);
-
-    glUniformMatrix4fv(shader.uniform("bpos"), bpos.size(), GL_FALSE, (const GLfloat*)(&bpos[0]));
-    mb.draw(smc->getId());
-  }
-
-  for(std::size_t i = 0; i < root->numChildren(); ++i)
-  {
-    render(root->getChild(i), mb, mvp, shader);
-  }
-}
-
 int main() {
   glfwSetErrorCallback(glfw_error_callback);
 
@@ -280,56 +142,24 @@ int main() {
 
   glfwSetKeyCallback(window, input_callback);
 
-  auto rootNode = std::unique_ptr<Node>(new Node());
+  glEnable(GL_DEBUG_OUTPUT);
+  glDebugMessageCallback(MessageCallback, 0);
+  glEnable(GL_DEPTH_TEST);
+
+  graphics::scene::Scene scene;
+  scene.load("data/scenes/simple.json");
 
   auto cameraNode = std::unique_ptr<Node>(new Node());
   auto camera = std::unique_ptr<CameraComponent>(new CameraComponent());
   auto cameraScript = std::unique_ptr<CameraScript>(new CameraScript());
   cameraScript->setInputMap(&inputMap);
 
-  rootNode->addChild(cameraNode.get());
+  scene.getRoot()->addChild(cameraNode.get());
   cameraNode->addComponent(camera.get());
   cameraNode->addComponent(cameraScript.get());
   cameraNode->getTransform().setTranslation(glm::vec3(-10, 0, 0));
 
-  auto mn1 = std::unique_ptr<Node>(new Node());
-  auto mc1 = std::unique_ptr<SkeletonMeshComponent>(
-    new SkeletonMeshComponent());
-
-  rootNode->addChild(mn1.get());
-  mn1->getTransform().setTranslation(glm::vec3(-1, 0, 0));
-  mn1->getTransform().setScale(glm::vec3(1,1,1));
-  mn1->getTransform().setRotation(glm::vec3(0, 0, 0));
-  mn1->addComponent(mc1.get());
-  mc1->setId(0);
-  mc1->setAnimName("default_0");
-  mc1->setAnimTime(0.1f);
-
-  auto mn2 = std::unique_ptr<Node>(new Node());
-  auto mc2 = std::unique_ptr<MeshComponent>(new MeshComponent());
-
-  rootNode->addChild(mn2.get());
-  mn2->getTransform().setTranslation(glm::vec3(-15, -1, -15));
-  mn2->getTransform().setScale(glm::vec3(0.3,0.3,0.3));
-  mn2->getTransform().setRotation(glm::vec3(0, 0, 0));
-  mn2->addComponent(mc2.get());
-  mc2->setId(0);
-
-  auto mn3 = std::unique_ptr<Node>(new Node());
-  auto mc3 = std::unique_ptr<SkeletonMeshComponent>(
-    new SkeletonMeshComponent());
-
-  rootNode->addChild(mn3.get());
-  mn3->getTransform().setTranslation(glm::vec3(-1, -5, -5));
-  mn3->addComponent(mc3.get());
-  mc3->setAnimName("default_0");
-  mc3->setId(1);
-
-  glEnable(GL_DEBUG_OUTPUT);
-  glDebugMessageCallback(MessageCallback, 0);
-  glEnable(GL_DEPTH_TEST);
-
-  startup(rootNode.get());
+  scene.startup();
 
   typedef std::chrono::high_resolution_clock Time;
   typedef std::chrono::milliseconds ms;
@@ -345,8 +175,7 @@ int main() {
     {
       last_tick_time = Time::now();
 
-      update(rootNode.get(), dt);
-      update_anim_time(rootNode.get(), dt);
+      scene.update(dt);
 
       glClearColor(0.0f, 0.0f, 0.4f, 0.0f);
       glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
@@ -358,12 +187,12 @@ int main() {
 
       glUseProgram(mesh_shader.get());
       mb.predraw();
-      render(rootNode.get(), mb, mv, mesh_shader);
+      graphics::ogl::render(scene.getRoot(), mb, mv, mesh_shader);
       mb.postdraw();
 
       glUseProgram(smesh_shader.get());
       smb.predraw();
-      render(rootNode.get(), smb, mv, smesh_shader);
+      graphics::ogl::render(scene.getRoot(), smb, mv, smesh_shader);
       smb.postdraw();
 
       glfwSwapBuffers(window);
@@ -376,7 +205,7 @@ int main() {
   mb.destroy();
   smb.destroy();
 
-  shutdown(rootNode.get());
+  scene.shutdown();
 
   for(auto& mesh : meshes)
   {
