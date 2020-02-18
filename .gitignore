@@ -1,6 +1,7 @@
 # BASE IGNORES #
 bin/
 obj/
+build/
 
 # VS CODE IGNORES #
 .vscode

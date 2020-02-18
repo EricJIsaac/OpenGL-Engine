@@ -1,7 +1,0 @@
-An OpenGL based rendering library.
-
-Dependencies:
-- glfw
-- glew
-- glm
-- assimp

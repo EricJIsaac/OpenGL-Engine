@@ -2,25 +2,25 @@ add_executable(${PROJECT_NAME} main.cpp)
 
 if(WIN32)
   message("Building for windows")
-  find_package(OpenGL REQUIRED)
 
-  set(OpenGL_LIBS
-    "${CMAKE_SOURCE_DIR}/lib/win32/glew32.lib"
-    "${CMAKE_SOURCE_DIR}/lib/win32/glfw3dll.lib"
-    "${CMAKE_SOURCE_DIR}/lib/win32/assimp32.lib"
-    "${OPENGL_LIBRARIES}"
-  )
+  find_package(OpenGL REQUIRED)
+  find_package(GLEW CONFIG REQUIRED)
+  find_package(glfw3 CONFIG REQUIRED)
+  find_package(assimp CONFIG REQUIRED)
+  find_package(glm CONFIG REQUIRED)
 
   include_directories(
-    "${CMAKE_SOURCE_DIR}/lib/win32/include"
+    "${GLEW_INCLUDE_DIR}"
+  )
+
+  set(OpenGL_LIBS
+    GLEW::GLEW
+    glfw
+    glm
+    assimp::assimp
+    "${OPENGL_LIBRARIES}"
   )
     
-  file(COPY ${CMAKE_SOURCE_DIR}/lib/win32/glew32.dll DESTINATION ${CMAKE_BINARY_DIR}/bin/Debug)
-  file(COPY ${CMAKE_SOURCE_DIR}/lib/win32/glew32.dll DESTINATION ${CMAKE_BINARY_DIR}/bin/Release)
-  file(COPY ${CMAKE_SOURCE_DIR}/lib/win32/glfw3.dll DESTINATION ${CMAKE_BINARY_DIR}/bin/Debug)
-  file(COPY ${CMAKE_SOURCE_DIR}/lib/win32/glfw3.dll DESTINATION ${CMAKE_BINARY_DIR}/bin/Release)
-  file(COPY ${CMAKE_SOURCE_DIR}/lib/win32/assimp32.dll DESTINATION ${CMAKE_BINARY_DIR}/bin/Debug)
-  file(COPY ${CMAKE_SOURCE_DIR}/lib/win32/assimp32.dll DESTINATION ${CMAKE_BINARY_DIR}/bin/Release)  
   file(COPY ${CMAKE_SOURCE_DIR}/data DESTINATION ${CMAKE_BINARY_DIR}/bin/Debug)
   file(COPY ${CMAKE_SOURCE_DIR}/data DESTINATION ${CMAKE_BINARY_DIR}/bin/Release)
 endif()
