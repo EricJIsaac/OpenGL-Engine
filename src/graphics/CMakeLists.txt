@@ -5,6 +5,7 @@ set(SOURCES
   "camera_component.cpp"
   "mesh_buffer.cpp"
   "mesh.cpp"
+  "mesh_db.cpp"
   "node.cpp"
   "render.cpp"
   "scene.cpp"

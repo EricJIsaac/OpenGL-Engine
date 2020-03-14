@@ -142,7 +142,8 @@ bool Scene::load(std::string filePath)
     this->m_components
   );
 
-  return false;
+  ifs.close();
+  return true;
 }
 
 void Scene::startup(){

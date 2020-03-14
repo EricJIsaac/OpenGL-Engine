@@ -1,0 +1,9 @@
+{
+  "skeletonMeshes" : {
+    "cube1" : "simple_cube_1.dae",
+    "cube2" : "simple_cube_2.dae"
+  },
+  "meshes" : {
+    "teapot" : "teapot.obj"
+  }
+}

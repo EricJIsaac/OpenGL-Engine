@@ -18,5 +18,6 @@
 
 #include "graphics/data/mesh.h"
 #include "graphics/data/skeleton_mesh.h"
+#include "graphics/data/mesh_db.h"
 
 #endif // GRAPHICS_H

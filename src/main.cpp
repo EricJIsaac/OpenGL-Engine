@@ -84,39 +84,14 @@ int main() {
   inputMap.addAxisKey(GLFW_KEY_E, AXIS_ROTATIONAL, -1);
   glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
 
-  graphics::data::Mesh* teapot = nullptr;
-  if(!graphics::data::mesh::load("data/meshes/teapot.obj", teapot))
-  {
-    printf("Failed to load teapot\n");
-    return -1;
-  }
-
-  graphics::data::SkeletonMesh* simple_cube = nullptr;
-  if(!graphics::data::mesh::load("data/anim/simple_cube_1.dae", simple_cube))
-  {
-    printf("Failed to load animated cube\n");
-    return -1;
-  }
-
-  graphics::data::SkeletonMesh* simple_cube_2 = nullptr;
-  if(!graphics::data::mesh::load("data/anim/simple_cube_2.dae", simple_cube_2))
-  {
-    printf("Failed to load animated cube 2\n");
-    return -1;
-  }
-
-  std::vector<graphics::data::Mesh*> meshes;
-  meshes.push_back(teapot);
+  graphics::data::MeshDB meshDB;
+  meshDB.load("data/geometry/meshdb.json");
 
   graphics::ogl::MeshBuffer mb;
-  mb.generate(meshes);
-
-  std::vector<graphics::data::SkeletonMesh*> smeshes;
-  smeshes.push_back(simple_cube);
-  smeshes.push_back(simple_cube_2);
+  mb.generate(meshDB.getMeshes());
 
   graphics::ogl::SkeletonMeshBuffer smb;
-  smb.generate(smeshes);
+  smb.generate(meshDB.getSkeletonMeshes());
 
   std::vector<GLuint> shader_ids;
   shader_ids.push_back
@@ -206,16 +181,6 @@ int main() {
   smb.destroy();
 
   scene.shutdown();
-
-  for(auto& mesh : meshes)
-  {
-    delete mesh;
-  }
-
-  for(auto& smesh : smeshes)
-  {
-    delete smesh;
-  }
 
   glfwDestroyWindow(window);
   glfwTerminate();
