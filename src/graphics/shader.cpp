@@ -98,6 +98,7 @@ Shader::Shader(GLuint shader_program)
 
   this->m_uniforms["mvp"] = glGetUniformLocation(this->m_program, "uniform_mvp");
   this->m_uniforms["bpos"] = glGetUniformLocation(this->m_program, "uniform_bpos");
+  this->m_uniforms["eye"] = glGetUniformLocation(this->m_program, "uniform_eye");
 }
 
 Shader::~Shader()

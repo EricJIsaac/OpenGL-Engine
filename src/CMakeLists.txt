@@ -20,7 +20,7 @@ if(WIN32)
     assimp::assimp
     "${OPENGL_LIBRARIES}"
   )
-    
+
   file(COPY ${CMAKE_SOURCE_DIR}/data DESTINATION ${CMAKE_BINARY_DIR}/bin/Debug)
   file(COPY ${CMAKE_SOURCE_DIR}/data DESTINATION ${CMAKE_BINARY_DIR}/bin/Release)
 endif()
@@ -37,8 +37,12 @@ if(UNIX AND NOT APPLE)
     assimp
     GL
   )
-  
+
   file(COPY ${CMAKE_SOURCE_DIR}/data DESTINATION ${CMAKE_BINARY_DIR}/bin)
+  add_custom_target(copy-data
+    COMMAND ${CMAKE_COMMAND} -E copy_directory
+    ${CMAKE_SOURCE_DIR}/data ${CMAKE_BINARY_DIR}/bin/data
+  )
 endif()
 
 add_subdirectory(engine)

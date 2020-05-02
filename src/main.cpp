@@ -160,13 +160,19 @@ int main() {
       	camera->getViewMatrix() *
       	glm::mat4(1.0f);
 
+      glm::vec4 eye =
+        //cameraNode->getTransform().getAbsoluteMatrix() *
+        glm::vec4(cameraNode->getTransform().getTranslation(), 0);
+
       glUseProgram(mesh_shader.get());
       mb.predraw();
+      glUniform3fv(mesh_shader.uniform("eye"), 1, &eye[0]);
       graphics::ogl::render(scene.getRoot(), mb, mv, mesh_shader);
       mb.postdraw();
 
       glUseProgram(smesh_shader.get());
       smb.predraw();
+      glUniform3fv(mesh_shader.uniform("eye"), 1, &eye[0]);
       graphics::ogl::render(scene.getRoot(), smb, mv, smesh_shader);
       smb.postdraw();
 
