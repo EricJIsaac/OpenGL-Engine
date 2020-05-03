@@ -30,6 +30,19 @@ vec3 base_diffuse(
 	return bd;
 }
 
+float gtr_specular_distribution(
+	float c,
+	float alpha,
+	float gamma,
+	float theta_h
+) {
+	return c /
+		pow(
+			pow(alpha,2) * pow(cos(theta_h),2) + pow(sin(theta_h),2),
+			gamma
+		);
+}
+
 void main()
 {
 	vec3 n = normalize(norm_ws);
@@ -40,8 +53,15 @@ void main()
 	float theta_l = dot(n,l);
 	float theta_v = dot(n,v);
 	float theta_d = dot(h,v);
+	float theta_h = dot(n,h);
 
 	vec3 bc = base_diffuse(_base_color, _roughness, theta_l, theta_v, theta_d);
 
-	color = bc;
+	float c = 1.0;
+	float alpha = 1.0;
+	float gamma = 1.0;
+
+	float d = gtr_specular_distribution(c, alpha, gamma, theta_h);
+
+	color = bc + d / (4 * cos(theta_l) * cos(theta_v));
 }
