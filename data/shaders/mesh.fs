@@ -6,41 +6,27 @@ in vec3 pos_ws;
 
 out vec3 color;
 
-vec3 _base_color = vec3(1,0,0);
-float _roughness = 0.5;
-float _metallic = 0.5;
-float _specular = 0.5;
+vec3 base_color = vec3(1,0,0);
+float roughness = 0.5;
+float specular = 0.3;
 
 vec3 light_direction = vec3(0, -1, -1);
 uniform vec3 uniform_eye;
 
-vec3 base_diffuse(
-	vec3 base_color,
-	float roughness,
-	float theta_l,
-	float theta_v,
-	float theta_d
-) {
-	float fd90 = 0.5 + 2.0 * pow(cos(theta_d),2) * roughness;
-	vec3 bd =
-		base_color / M_PI *
-		(1 + (fd90 - 1) * (1 - pow(cos(theta_l),5))) *
-		(1 + (fd90 - 1) * (1 - pow(cos(theta_v),5)));
-
-	return bd;
+vec3 base_diffuse(vec3 bc, float r) {
+	return bc;
 }
 
-float gtr_specular_distribution(
-	float c,
-	float alpha,
-	float gamma,
-	float theta_h
-) {
-	return c /
-		pow(
-			pow(alpha,2) * pow(cos(theta_h),2) + pow(sin(theta_h),2),
-			gamma
-		);
+float microfacet_distribution(float NdotH) {
+	return 1.0;
+}
+
+float fresnel_approximation(float HdotV) {
+	return 1.0;
+}
+
+float geometric_attenuation(float NdotL, float NdotV) {
+	return NdotL * NdotV;
 }
 
 void main()
@@ -50,18 +36,15 @@ void main()
 	vec3 l = normalize(-1 * light_direction);
 	vec3 h = normalize(v + l);
 
-	float theta_l = dot(n,l);
-	float theta_v = dot(n,v);
-	float theta_d = dot(h,v);
-	float theta_h = dot(n,h);
+	float NdotL = dot(n,l);
+	float NdotV = dot(n,v);
+	float HdotV = dot(h,v); // HdotL would work too
+	float NdotH = dot(n,h);
 
-	vec3 bc = base_diffuse(_base_color, _roughness, theta_l, theta_v, theta_d);
+	vec3 bc = base_diffuse(base_color, roughness);
+	float d = microfacet_distribution(NdotH);
+	float f = fresnel_approximation(HdotV);
+	float g = geometric_attenuation(NdotL, NdotV);
 
-	float c = 1.0;
-	float alpha = 1.0;
-	float gamma = 1.0;
-
-	float d = gtr_specular_distribution(c, alpha, gamma, theta_h);
-
-	color = bc + d / (4 * cos(theta_l) * cos(theta_v));
+	color = bc * (1 - specular) + specular * d * f * g / (4 * NdotL * NdotV);
 }
