@@ -1,5 +1,5 @@
 #version 330 core
-#define M_PI 3.1415926535897932384626433832795
+#define PI 3.1415926535897932384626433832795
 
 in vec3 norm_ws;
 in vec3 pos_ws;
@@ -8,17 +8,35 @@ out vec3 color;
 
 vec3 base_color = vec3(1,0,0);
 float roughness = 0.5;
-float specular = 0.3;
+float specular = 0.5;
 
 vec3 light_direction = vec3(0, -1, -1);
 uniform vec3 uniform_eye;
 
-vec3 base_diffuse(vec3 bc, float r) {
-	return bc;
+vec3 base_diffuse(vec3 bc, float r, float HdotV, float NdotV, float NdotL) {
+	float fd90 = 0.5 + 2 * r * HdotV * HdotV;
+
+	float a = clamp(1 - NdotV, 0, 1);
+	float a2 = a * a;
+	float a5 = a2 * a2 * NdotV;
+
+	float b = clamp(1 - NdotL, 0, 1);
+	float b2 = b * b;
+	float b5 = b2 * b2 * NdotL;
+
+	return bc * (1 + fd90 * a) * (1 + fd90 * b) / PI;
 }
 
-float microfacet_distribution(float NdotH) {
-	return 1.0;
+float microfacet_distribution(float r, float NdotH) {
+	float c = 1.0;
+	float alpha = r * r;
+	float alpha2 = alpha * alpha;
+
+	float hc = clamp(NdotH, 0, 1);
+	float hc2 = hc * hc;
+	float hs2 = 1 - hc2;
+
+	return c / (alpha2 * hc2 + hs2);
 }
 
 float fresnel_approximation(float HdotV) {
@@ -41,10 +59,10 @@ void main()
 	float HdotV = dot(h,v); // HdotL would work too
 	float NdotH = dot(n,h);
 
-	vec3 bc = base_diffuse(base_color, roughness);
-	float d = microfacet_distribution(NdotH);
-	float f = fresnel_approximation(HdotV);
-	float g = geometric_attenuation(NdotL, NdotV);
+	vec3 bc = base_diffuse(base_color, roughness, HdotV, NdotV, NdotL);
+	float s_d = microfacet_distribution(roughness, NdotH);
+	float s_f = fresnel_approximation(HdotV);
+	float s_g = geometric_attenuation(NdotL, NdotV);
 
-	color = bc * (1 - specular) + specular * d * f * g / (4 * NdotL * NdotV);
+	color = bc * (1 - specular) + specular * s_d * s_f * s_g / (4 * NdotL * NdotV);
 }
