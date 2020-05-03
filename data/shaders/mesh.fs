@@ -7,8 +7,8 @@ in vec3 pos_ws;
 out vec3 color;
 
 vec3 base_color = vec3(1,0,0);
-float roughness = 0.5;
-float specular = 0.5;
+float roughness = 0.1;
+float specular = 0.2;
 
 vec3 light_direction = vec3(0, -1, -1);
 uniform vec3 uniform_eye;
@@ -46,8 +46,14 @@ float fresnel_approximation(float s, float HdotV) {
 	return s + (1 - s) * a5;
 }
 
-float geometric_attenuation(float NdotL, float NdotV) {
-	return NdotL * NdotV;
+float geometric_attenuation(float r, float v) {
+	float ar = 0.5 + r / 2;
+	float a = ar * ar;
+	float a2 = a * a;
+
+	float u = clamp(v, 0, 1);
+	float u2 = u * u;
+	return 1 / (u + sqrt(a2 + (1 - a2) * u2));
 }
 
 void main()
@@ -65,7 +71,8 @@ void main()
 	vec3 bc = base_diffuse(base_color, roughness, HdotV, NdotV, NdotL);
 	float s_d = microfacet_distribution(roughness, NdotH);
 	float s_f = fresnel_approximation(specular, HdotV);
-	float s_g = geometric_attenuation(NdotL, NdotV);
+	float s_g = geometric_attenuation(roughness, NdotL) *
+	 						geometric_attenuation(roughness, NdotV);
 
-	color = bc * (1 - specular) + specular * s_d * s_f * s_g / (4 * NdotL * NdotV);
+	color = bc * (1 - specular) + specular * s_d * s_f * s_g / 4;
 }
