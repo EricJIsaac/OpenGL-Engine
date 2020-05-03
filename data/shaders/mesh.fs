@@ -39,8 +39,11 @@ float microfacet_distribution(float r, float NdotH) {
 	return c / (alpha2 * hc2 + hs2);
 }
 
-float fresnel_approximation(float HdotV) {
-	return 1.0;
+float fresnel_approximation(float s, float HdotV) {
+	float a = clamp(1-HdotV, 0, 1);
+	float a2 = a * a;
+	float a5 = a2 * a2 * a;
+	return s + (1 - s) * a5;
 }
 
 float geometric_attenuation(float NdotL, float NdotV) {
@@ -61,7 +64,7 @@ void main()
 
 	vec3 bc = base_diffuse(base_color, roughness, HdotV, NdotV, NdotL);
 	float s_d = microfacet_distribution(roughness, NdotH);
-	float s_f = fresnel_approximation(HdotV);
+	float s_f = fresnel_approximation(specular, HdotV);
 	float s_g = geometric_attenuation(NdotL, NdotV);
 
 	color = bc * (1 - specular) + specular * s_d * s_f * s_g / (4 * NdotL * NdotV);
