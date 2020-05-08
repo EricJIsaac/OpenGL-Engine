@@ -118,6 +118,9 @@ void SkeletonMeshBuffer::draw(std::size_t id)
 void SkeletonMeshBuffer::postdraw()
 {
     glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
+    glDisableVertexAttribArray(2);
+    glDisableVertexAttribArray(3);
 }
 
 void SkeletonMeshBuffer::destroy()

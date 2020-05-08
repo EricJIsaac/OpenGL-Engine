@@ -66,7 +66,7 @@ namespace ogl {
   			smc->getAnimTime(),
   			bpos);
 
-      glUniformMatrix4fv(shader.uniform("bpos"), bpos.size(), GL_FALSE, (const GLfloat*)(&bpos[0]));
+      glUniformMatrix4fv(shader.uniform("bpos"), 50, GL_FALSE, &bpos.at(0)[0][0]);
       mb.draw(smc->getId());
     }
 

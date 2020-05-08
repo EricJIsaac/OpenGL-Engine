@@ -43,6 +43,8 @@ if(UNIX AND NOT APPLE)
     COMMAND ${CMAKE_COMMAND} -E copy_directory
     ${CMAKE_SOURCE_DIR}/data ${CMAKE_BINARY_DIR}/bin/data
   )
+
+  add_definitions("-ggdb -Og")
 endif()
 
 add_subdirectory(engine)

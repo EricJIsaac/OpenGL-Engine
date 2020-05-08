@@ -100,6 +100,7 @@ void MeshBuffer::draw(std::size_t id)
 void MeshBuffer::postdraw()
 {
     glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
 }
 
 void MeshBuffer::destroy()

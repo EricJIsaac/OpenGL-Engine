@@ -11,6 +11,8 @@
 #include <fstream>
 #include <chrono>
 #include <memory>
+#include <iostream>
+#include <exception>
 
 #include "engine/engine.h"
 #include "graphics/graphics.h"
@@ -24,6 +26,16 @@ auto input_callback(GLFWwindow* w, int k, int s, int a, int m)
   inputMap.key_callback(w,k,s,a,m);
 };
 
+namespace graphics {
+  class GlException: public std::exception
+  {
+    virtual const char* what() const throw()
+    {
+      return "An OpenGL error occured";
+    }
+  } glException;
+} // namespace graphics;
+
 void GLAPIENTRY
 MessageCallback( GLenum source,
                  GLenum type,
@@ -36,6 +48,10 @@ MessageCallback( GLenum source,
   fprintf( stderr, "GL CALLBACK: %s type = 0x%x, severity = 0x%x, message = %s\n",
            ( type == GL_DEBUG_TYPE_ERROR ? "** GL ERROR **" : "" ),
             type, severity, message );
+
+  if(type == GL_DEBUG_TYPE_ERROR) {
+    throw graphics::glException;
+  }
 }
 
 void glfw_error_callback(int error_code, const char* description)
@@ -172,7 +188,7 @@ int main() {
 
       glUseProgram(smesh_shader.get());
       smb.predraw();
-      glUniform3fv(mesh_shader.uniform("eye"), 1, &eye[0]);
+      glUniform3fv(smesh_shader.uniform("eye"), 1, &eye[0]);
       graphics::ogl::render(scene.getRoot(), smb, mv, smesh_shader);
       smb.postdraw();
 
