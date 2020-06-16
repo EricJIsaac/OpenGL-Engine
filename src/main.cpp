@@ -26,6 +26,25 @@ auto input_callback(GLFWwindow* w, int k, int s, int a, int m)
   inputMap.key_callback(w,k,s,a,m);
 };
 
+void window_size_callback(GLFWwindow* window, int width, int height)
+{
+    float aspect = 0.75; // h/w
+    float diff_h = 0;
+    float diff_w = 0;
+
+    if(height / width > aspect) {
+      // 'too tall'
+      diff_w = height / aspect - width;
+      diff_w = diff_w / 2;
+    } else if (height / width < aspect){
+      // 'too wide'
+      diff_h = width * aspect - height;
+      diff_h = diff_h / 2;
+    }
+
+    glViewport(-diff_w, -diff_h, width + diff_w, height + diff_h);
+}
+
 namespace graphics {
   class GlException: public std::exception
   {
@@ -99,6 +118,7 @@ int main() {
   inputMap.addAxisKey(GLFW_KEY_Q, AXIS_ROTATIONAL, 1);
   inputMap.addAxisKey(GLFW_KEY_E, AXIS_ROTATIONAL, -1);
   glfwSetInputMode(window, GLFW_STICKY_KEYS, GL_TRUE);
+  glfwSetWindowSizeCallback(window, window_size_callback);
 
   graphics::data::MeshDB meshDB;
   meshDB.load("data/geometry/meshdb.json");
