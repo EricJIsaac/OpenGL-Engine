@@ -26,16 +26,20 @@ if(WIN32)
 endif()
 
 if(UNIX AND NOT APPLE)
-  find_library(GL REQUIRED)
-  find_library(GLEW REQUIRED)
-  find_library(glfw REQUIRED)
-  find_library(assimp REQUIRED)
+  if(POLICY CMP0012)
+    cmake_policy(SET CMP0012 NEW)
+  endif()
+
+  find_package(OpenGL REQUIRED)
+  find_package(GLEW REQUIRED)
+  find_package(glfw3 REQUIRED)
+  find_package(assimp REQUIRED)
 
   set(OpenGL_LIBS
     GLEW
     glfw
     assimp
-    GL
+    OpenGL
   )
 
   file(COPY ${CMAKE_SOURCE_DIR}/data DESTINATION ${CMAKE_BINARY_DIR}/bin)
