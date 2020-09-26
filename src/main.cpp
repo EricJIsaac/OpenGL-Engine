@@ -20,10 +20,21 @@
 using namespace graphics::scene;
 using namespace engine::scripts;
 
+const std::string current_date_time() {
+    time_t     now = time(0);
+    struct tm  tstruct;
+    char       buf[80];
+    tstruct = *localtime(&now);
+    strftime(buf, sizeof(buf), "%Y-%m-%d.%X", &tstruct);
+    return buf;
+}
+
 void screenshot_callback(int width, int height) {
+    std::string file_name = current_date_time() + ".ppm";
+
     void* pixels = malloc(4 * width * height);
     glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
-    io::image::save_ppm("test.ppm", width, height, 4, pixels);
+    io::image::save_ppm(file_name.c_str(), width, height, 4, pixels);
     free(pixels);
 }
 
