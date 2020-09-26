@@ -5,6 +5,7 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
+#include <cstdlib>
 #include <vector>
 #include <sstream>
 #include <string>
@@ -19,10 +20,23 @@
 using namespace graphics::scene;
 using namespace engine::scripts;
 
+void screenshot_callback(int width, int height) {
+    void* pixels = malloc(4 * width * height);
+    glReadPixels(0, 0, width, height, GL_RGBA, GL_UNSIGNED_BYTE, pixels);
+    io::image::save_ppm("test.ppm", width, height, 4, pixels);
+    free(pixels);
+}
+
 engine::input::InputMap inputMap;
-auto input_callback(GLFWwindow* w, int k, int s, int a, int m)
+auto input_callback(GLFWwindow* window, int key, int s, int action, int m)
 {
-  inputMap.key_callback(w,k,s,a,m);
+  inputMap.key_callback(window,key,s,action,m);
+
+  if(key == GLFW_KEY_P && action == GLFW_RELEASE) {
+      int width, height;
+      glfwGetWindowSize(window, &width, &height);
+      screenshot_callback(width, height);
+  }
 };
 
 void window_size_callback(GLFWwindow* window, int width, int height)

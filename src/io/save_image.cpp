@@ -19,7 +19,7 @@ namespace image {
 
       for(int y = 0; y < height; y++) {
         for(int x = 0; x < width; x++) {
-          cur = nbytes * (x + y * width);
+          cur = nbytes * (x + (height - y - 1) * width);
           GLubyte r = data[cur];
           GLubyte g = data[cur + 1];
           GLubyte b = data[cur + 2];
