@@ -53,9 +53,12 @@ endif()
 
 add_subdirectory(engine)
 add_subdirectory(graphics)
+add_subdirectory(io)
+add_subdirectory(test)
 
 target_link_libraries(${PROJECT_NAME}
   graphics
   engine
+  io
   ${OpenGL_LIBS}
 )

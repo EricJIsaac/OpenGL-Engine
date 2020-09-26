@@ -11,8 +11,6 @@
 #include "graphics/scene/script_component.h"
 #include "graphics/scene/scene.h"
 
-#include "graphics/image/save_image.h"
-
 #include "graphics/ogl/shader.h"
 #include "graphics/ogl/mesh_buffer.h"
 #include "graphics/ogl/skeleton_mesh_buffer.h"

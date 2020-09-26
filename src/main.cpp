@@ -14,8 +14,7 @@
 #include <iostream>
 #include <exception>
 
-#include "engine/engine.h"
-#include "graphics/graphics.h"
+#include "opengl_engine.h"
 
 using namespace graphics::scene;
 using namespace engine::scripts;

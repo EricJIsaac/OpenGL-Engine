@@ -1,12 +1,12 @@
 #include <GL/glew.h>
 #include <cstdio>
-#include "graphics/image/save_image.h"
+#include "io/image/save_image.h"
 
-namespace graphics {
+namespace io {
 namespace image {
 
   void save_ppm(
-    char* fileName,
+    const char* fileName,
     int width,
     int height,
     int nbytes,
@@ -23,11 +23,10 @@ namespace image {
           GLubyte r = data[cur];
           GLubyte g = data[cur + 1];
           GLubyte b = data[cur + 2];
-          fprintf(file, "%d %d %d", r, g, b);
+          fprintf(file, "%d %d %d\n", r, g, b);
         }
-        fprintf(file, "\n");
       }
   }
 
 } // namespace image
-} // namespace graphics
+} // namespace io
