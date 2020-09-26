@@ -8,6 +8,7 @@ set(SOURCES
   "mesh_db.cpp"
   "node.cpp"
   "render.cpp"
+  "save_image.cpp"
   "scene.cpp"
   "shader.cpp"
   "skeleton_mesh_buffer.cpp"
